@@ -35,6 +35,8 @@ public class LocationServiceEndpointResolverTest {
         assertNull(resolver.resolve(request));
 
         request.locationServiceCode = "";
+        LocationServiceEndpointResolver.setRegionId("region");
+        LocationServiceEndpointResolver.setProductCode("product");
         assertNull(resolver.resolve(request));
     }
 
@@ -218,5 +220,24 @@ public class LocationServiceEndpointResolverTest {
         DefaultAcsClient client = mock(DefaultAcsClient.class);
         LocationServiceEndpointResolver resolver = new LocationServiceEndpointResolver(client);
         assertNull(resolver.getValidRegionIdsByProduct("ecs"));
+    }
+
+    @Test
+    public void getSetTest() {
+        LocationServiceEndpointResolver.setRegionId("region");
+        String result = LocationServiceEndpointResolver.getRegionId();
+        assertEquals("region", result);
+
+        LocationServiceEndpointResolver.setProductCode("code");
+        result = LocationServiceEndpointResolver.getProductCode();
+        assertEquals("code", result);
+
+        LocationServiceEndpointResolver.setLocationServiceApiVersion("2088-12-12");
+        result = LocationServiceEndpointResolver.getLocationServiceApiVersion();
+        assertEquals("2088-12-12", result);
+
+        LocationServiceEndpointResolver.setLocationServiceEndpoint("endpoint");
+        result = LocationServiceEndpointResolver.getLocationServiceEndpoint();
+        assertEquals("endpoint", result);
     }
 }

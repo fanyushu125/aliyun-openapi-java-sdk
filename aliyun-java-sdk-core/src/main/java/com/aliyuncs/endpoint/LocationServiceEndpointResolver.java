@@ -15,16 +15,18 @@ public class LocationServiceEndpointResolver extends EndpointResolverBase {
     private final static String DEFAULT_LOCATION_SERVICE_ENDPOINT = "location-readonly.aliyuncs.com";
     private final static String DEFAULT_LOCATION_SERVICE_API_VERSION = "2015-06-12";
     /**
-     *  For test use
+     * For test use
      */
     public int locationServiceCallCounter = 0;
-    protected String locationServiceEndpoint = DEFAULT_LOCATION_SERVICE_ENDPOINT;
-    protected String locationServiceApiVersion = DEFAULT_LOCATION_SERVICE_API_VERSION;
+    protected static String locationServiceEndpoint = DEFAULT_LOCATION_SERVICE_ENDPOINT;
+    protected static String locationServiceApiVersion = DEFAULT_LOCATION_SERVICE_API_VERSION;
     private IAcsClient client;
     private Set<String> invalidProductCodes;
     private Set<String> validProductCodes;
     private Set<String> invalidRegionIds;
     private Set<String> validRegionIds;
+    private static String regionId;
+    private static String productCode;
 
     public LocationServiceEndpointResolver(IAcsClient client) {
         this.client = client;
@@ -34,12 +36,18 @@ public class LocationServiceEndpointResolver extends EndpointResolverBase {
         validRegionIds = new HashSet<String>();
     }
 
-    public void setLocationServiceEndpoint(String endpoint) {
+    public static void setLocationServiceEndpoint(String endpoint) {
         locationServiceEndpoint = endpoint;
     }
 
     @Override
     public String resolve(ResolveEndpointRequest request) throws ClientException {
+        if (null == regionId) {
+            regionId = request.regionId;
+        }
+        if (null == productCode) {
+            productCode = request.locationServiceCode;
+        }
         if (request.locationServiceCode == null || request.locationServiceCode.length() == 0) {
             return null;
         }
@@ -80,8 +88,8 @@ public class LocationServiceEndpointResolver extends EndpointResolverBase {
         DescribeEndpointsRequest describeEndpointsRequest = new DescribeEndpointsRequest();
         describeEndpointsRequest.setSysProtocol(ProtocolType.HTTPS);
         describeEndpointsRequest.setAcceptFormat(FormatType.JSON);
-        describeEndpointsRequest.setId(request.regionId);
-        describeEndpointsRequest.setServiceCode(request.locationServiceCode);
+        describeEndpointsRequest.setId(regionId);
+        describeEndpointsRequest.setServiceCode(productCode);
         describeEndpointsRequest.setType(request.endpointType);
         describeEndpointsRequest.setSysEndpoint(locationServiceEndpoint);
         describeEndpointsRequest.setVersion(locationServiceApiVersion);
@@ -157,5 +165,33 @@ public class LocationServiceEndpointResolver extends EndpointResolverBase {
                                   String endpointType) {
         return productCode.toLowerCase() + "." + locationServiceCode + "."
                 + regionId.toLowerCase() + "." + endpointType;
+    }
+
+    public static String getLocationServiceEndpoint() {
+        return locationServiceEndpoint;
+    }
+
+    public static String getLocationServiceApiVersion() {
+        return locationServiceApiVersion;
+    }
+
+    public static void setLocationServiceApiVersion(String locationServiceApiVersion) {
+        LocationServiceEndpointResolver.locationServiceApiVersion = locationServiceApiVersion;
+    }
+
+    public static String getRegionId() {
+        return regionId;
+    }
+
+    public static void setRegionId(String regionId) {
+        LocationServiceEndpointResolver.regionId = regionId;
+    }
+
+    public static String getProductCode() {
+        return productCode;
+    }
+
+    public static void setProductCode(String productCode) {
+        LocationServiceEndpointResolver.productCode = productCode;
     }
 }
